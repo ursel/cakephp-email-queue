@@ -39,6 +39,7 @@ class PreviewShell extends AppShell {
 		$configName = $e['EmailQueue']['config'];
 		$template = $e['EmailQueue']['template'];
 		$layout = $e['EmailQueue']['layout'];
+		$headers = empty($e['EmailQueue']['headers']) ? array() : (array)$e['EmailQueue']['headers'];
 
 		$email = new CakeEmail($configName);
 		$email->transport('Debug')
@@ -46,6 +47,7 @@ class PreviewShell extends AppShell {
 			->subject($e['EmailQueue']['subject'])
 			->template($template, $layout)
 			->emailFormat($e['EmailQueue']['format'])
+			->addHeaders($headers)
 			->viewVars($e['EmailQueue']['template_vars']);
 
 		$return = $email->send();

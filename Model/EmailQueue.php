@@ -1,5 +1,4 @@
 <?php
-
 App::uses('AppModel', 'Model');
 
 /**
@@ -47,6 +46,7 @@ class EmailQueue extends AppModel {
 			'template' => 'default',
 			'layout' => 'default',
 			'format' => 'both',
+			'headers' => array(),
 			'template_vars' => $data,
 			'config' => 'default'
 		);
@@ -146,6 +146,9 @@ class EmailQueue extends AppModel {
 		if (isset($this->data[$this->alias]['template_vars'])) {
 			$this->data[$this->alias]['template_vars'] = json_encode($this->data[$this->alias]['template_vars']);
 		}
+		if (isset($this->data[$this->alias]['headers'])) {
+			$this->data[$this->alias]['headers'] = json_encode($this->data[$this->alias]['headers']);
+		}
 
 		return parent::beforeSave($options);
 	}
@@ -162,11 +165,14 @@ class EmailQueue extends AppModel {
 			return parent::afterFind($results, $primary);
 		}
 
-		foreach ($results as &$r) {
-			if (!isset($r[$this->alias]['template_vars'])) {
+		$first = current($results);
+		if (!isset($first[$this->alias]['template_vars']) && !isset($first[$this->alias]['headers'])) {
 				return $results;
-			}
+		}
+
+		foreach ($results as &$r) {
 			$r[$this->alias]['template_vars'] = json_decode($r[$this->alias]['template_vars'], true);
+			$r[$this->alias]['headers'] = json_decode($r[$this->alias]['headers'], true);
 		}
 
 		return $results;

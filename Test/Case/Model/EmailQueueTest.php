@@ -43,7 +43,10 @@ class EmailQueueTest extends CakeTestCase {
  */
 	public function testEnqueue() {
 		$count = $this->EmailQueue->find('count');
-		$this->EmailQueue->enqueue('someone@domain.com', array('a' => 'variable', 'some' => 'thing'), array('subject' => 'Hey!'));
+		$this->EmailQueue->enqueue('someone@domain.com', array('a' => 'variable', 'some' => 'thing'), array(
+			'subject' => 'Hey!',
+			'headers' => array('X-FOO' => 'bar', 'X-BAZ' => 'thing')
+		));
 		$id = $this->EmailQueue->id;
 		$this->assertEquals(++$count, $this->EmailQueue->find('count'));
 
@@ -58,13 +61,14 @@ class EmailQueueTest extends CakeTestCase {
 			'sent' => false,
 			'locked' => false,
 			'send_tries' => '0',
-			'config' => 'default'
+			'config' => 'default',
+			'headers' => array('X-FOO' => 'bar', 'X-BAZ' => 'thing')
 		);
 		$result = $result['EmailQueue'];
 		$sendAt = new DateTime($result['send_at']);
 		unset($result['id'], $result['created'], $result['modified'], $result['send_at']);
 		$this->assertEquals($expected, $result);
-		$this->assertEquals(gmdate('Y-m-d H'),$sendAt->format('Y-m-d H'));
+		$this->assertEquals(gmdate('Y-m-d H'), $sendAt->format('Y-m-d H'));
 
 		$date = gmdate('Y-m-d H:i:s');
 		$this->EmailQueue->enqueue(array('a@example.com', 'b@example.com'), array('a' => 'b'), array('send_at' => $date, 'subject' => 'Hey!'));
