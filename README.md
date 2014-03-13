@@ -13,28 +13,14 @@ email templates and watching the result.
 
 ## Installation ##
 
-There are a few ways you can choose for intalling this plugin:
+The only installation method supported by this plugin is by using composer. Just add this to your composer.json configuration:
 
-_[Manual]_
+	{
+	  "require" : {
+		"lorenzo/cakephp-email-queue": "1.0"
+	  }
+	}
 
-* Download this: [https://github.com/nodesagency/cakephp-email-queue/zipball/master](https://github.com/nodesagency/cakephp-email-queue/zipball/master)
-* Unzip that download.
-* Copy the resulting folder to `app/Plugin`
-* Rename the folder you just copied to `EmailQueue`
-
-_[GIT Submodule]_
-
-In your app directory type:
-
-	git submodule add git@github.com:nodesagency/cakephp-email-queue.git app/Plugin/EmailQueue
-	git submodule init
-	git submodule update
-
-_[GIT Clone]_
-
-In your plugin directory type
-
-	git clone git://github.com/nodesagency/cakephp-email-queue.git app/Plugin/EmailQueue
 
 ### Enable plugin
 
