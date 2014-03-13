@@ -42,13 +42,14 @@ class SenderShellTest extends CakeTestCase {
 	}
 
 	public function testMainAllFail() {
-		$email = $this->getMock('CakeEmail', array('to', 'template', 'viewVars', 'send', 'subject', 'emailFormat'));
+		$email = $this->getMock('CakeEmail', array('to', 'template', 'viewVars', 'send', 'subject', 'emailFormat', 'addHeaders'));
 
 		$this->Sender->expects($this->exactly(3))->method('_newEmail')->with('default')->will($this->returnValue($email));
 		$email->expects($this->exactly(3))->method('send')->will($this->returnValue(false));
 		$email->expects($this->exactly(3))->method('to')->will($this->returnSelf());
 		$email->expects($this->exactly(3))->method('subject')->with('Free dealz')->will($this->returnSelf());
 		$email->expects($this->exactly(3))->method('emailFormat')->with('both')->will($this->returnSelf());
+		$email->expects($this->exactly(3))->method('addHeaders')->with(['foo' => 'bar'])->will($this->returnSelf());
 
 		$email->expects($this->exactly(3))->method('template')
 			->with('default', 'default')
@@ -74,7 +75,6 @@ class SenderShellTest extends CakeTestCase {
 		$this->assertFalse($emails[1]['EmailQueue']['sent']);
 		$this->assertFalse($emails[2]['EmailQueue']['sent']);
 	}
-
 
 	public function testMainAllWin() {
 		$email = $this->getMock('CakeEmail', array('to', 'template', 'viewVars', 'send', 'subject', 'emailFormat'));
