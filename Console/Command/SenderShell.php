@@ -45,10 +45,12 @@ class SenderShell extends AppShell {
 		$emailQueue = ClassRegistry::init('EmailQueue.EmailQueue');
 
 		$emails = $emailQueue->getBatch($this->params['limit']);
+		$count = count($emails);
 		foreach ($emails as $e) {
 			$configName = $e['EmailQueue']['config'] === 'default' ? $this->params['config'] : $e['EmailQueue']['config'];
 			$template = $e['EmailQueue']['template'] === 'default' ? $this->params['template'] : $e['EmailQueue']['template'];
 			$layout = $e['EmailQueue']['layout'] === 'default' ? $this->params['layout'] : $e['EmailQueue']['layout'];
+			$headers = empty($e['EmailQueue']['headers']) ? array() : (array)$e['EmailQueue']['headers'];
 
 			try {
 				$email = $this->_newEmail($configName);
@@ -62,6 +64,7 @@ class SenderShell extends AppShell {
 					->subject($e['EmailQueue']['subject'])
 					->template($template, $layout)
 					->emailFormat($e['EmailQueue']['format'])
+					->addHeaders($headers)
 					->viewVars($e['EmailQueue']['template_vars'])
 					->send();
 			} catch (SocketException $exception) {

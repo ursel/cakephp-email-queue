@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `email_queue` (
   `layout` varchar(50) NOT NULL,
   `format` varchar(5) NOT NULL,
   `template_vars` text NOT NULL,
+  `headers` text,
   `sent` tinyint(1) NOT NULL,
   `locked` tinyint(1) NOT NULL DEFAULT '0',
   `send_tries` int(2) NOT NULL,

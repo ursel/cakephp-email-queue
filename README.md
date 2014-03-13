@@ -4,6 +4,9 @@ This plugin provides an interface for creating emails on the fly and
 store them in a queue to be processed later by an offline worker using a
 cakephp shell command.
 
+It also contains a handy shell for previewing queued emails, a very handy tool for modifying
+email templates and watching the result.
+
 ## Requirements ##
 
 * CakePHP 2.x
@@ -68,14 +71,22 @@ and queue a new one by storing the correct data:
  * `template` :  the name of the element to use as template for the email message
  * `layout` : the name of the layout to be used to wrap email message
  * `format` : Type of template to use (html, text or both)
+ * `headers`: A key-value list of headers to send in the email
  * `config` : the name of the email config to be used for sending
+
+### Previewing emails
+
+It is possible to preview emails that are still in the queue, this is very handy during development to check if the rendered
+email looks at it should; no need to queue the email again, just make the changes to the template and run the preview again:
+
+	# Console/cake EmailQueue.preview
 
 ### Sending emails
 
 Emails should be sent using bundled Sender command, use `-h` modifier to
 read available options
 
-	# Console/cake EmailQueue.Sender -h
+	# Console/cake EmailQueue.sender -h
 
 You can configure this command to be run under a cron or any other tool
 you wish to use.
