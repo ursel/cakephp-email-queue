@@ -45,6 +45,7 @@ class EmailQueue extends AppModel {
 			'send_at' => gmdate('Y-m-d H:i:s'),
 			'template' => 'default',
 			'layout' => 'default',
+			'theme' => '',
 			'format' => 'both',
 			'headers' => array(),
 			'template_vars' => $data,

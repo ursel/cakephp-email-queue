@@ -51,6 +51,10 @@ class SenderShell extends AppShell {
 			$template = $e['EmailQueue']['template'] === 'default' ? $this->params['template'] : $e['EmailQueue']['template'];
 			$layout = $e['EmailQueue']['layout'] === 'default' ? $this->params['layout'] : $e['EmailQueue']['layout'];
 			$headers = empty($e['EmailQueue']['headers']) ? array() : (array)$e['EmailQueue']['headers'];
+			$theme = empty($e['EmailQueue']['theme']) ? null : (string)$e['EmailQueue']['theme'];
+			if (empty($theme)) {
+				$theme = '';
+			}
 
 			try {
 				$email = $this->_newEmail($configName);
@@ -65,6 +69,7 @@ class SenderShell extends AppShell {
 					->template($template, $layout)
 					->emailFormat($e['EmailQueue']['format'])
 					->addHeaders($headers)
+					->theme($theme)
 					->viewVars($e['EmailQueue']['template_vars'])
 					->send();
 			} catch (SocketException $exception) {
