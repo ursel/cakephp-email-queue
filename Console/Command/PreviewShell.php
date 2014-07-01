@@ -55,6 +55,7 @@ class PreviewShell extends AppShell {
 			->addHeaders($headers)
 			->theme($theme)
 			->messageId(false)
+			->returnPath($email->from())
 			->viewVars($e['EmailQueue']['template_vars']);
 
 		$return = $email->send();
