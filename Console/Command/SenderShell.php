@@ -63,6 +63,13 @@ class SenderShell extends AppShell {
 					$email->from($e['EmailQueue']['from_email'], $e['EmailQueue']['from_name']);
 				}
 
+				$config = $email->config();
+
+				if (!isset($config['additionalParameters'])) {
+					$from = key($email->from());
+					$email->config(['additionalParameters' => "-f $from"]);
+				}
+
 				$sent = $email
 					->to($e['EmailQueue']['to'])
 					->subject($e['EmailQueue']['subject'])
