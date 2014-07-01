@@ -71,6 +71,7 @@ class SenderShell extends AppShell {
 					->addHeaders($headers)
 					->theme($theme)
 					->viewVars($e['EmailQueue']['template_vars'])
+					->messageId(false)
 					->send();
 			} catch (SocketException $exception) {
 				$this->err($exception->getMessage());
