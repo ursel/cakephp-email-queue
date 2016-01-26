@@ -24,6 +24,11 @@ class SenderShell extends AppShell {
 				'help' => 'Name of the layout to be used to wrap template',
 				'default' => 'default'
 			))
+			->addOption('stagger', array(
+				'short' => 's',
+				'help' => 'Seconds to maximum wait randomly before proceeding (useful for parallel executions)',
+				'default' => false
+			))
 			->addOption('config', array(
 				'short' => 'c',
 				'help' => 'Name of email settings to use as defined in email.php',
@@ -41,9 +46,12 @@ class SenderShell extends AppShell {
  * @access public
  */
 	public function main() {
+		if ($this->params['stagger']) {
+			sleep(rand(0, $this->params['stagger']));
+		}
+
 		Configure::write('App.baseUrl', '/');
 		$emailQueue = ClassRegistry::init('EmailQueue.EmailQueue');
-
 		$emails = $emailQueue->getBatch($this->params['limit']);
 		$count = count($emails);
 		foreach ($emails as $e) {
