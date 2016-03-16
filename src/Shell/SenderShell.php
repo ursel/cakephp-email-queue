@@ -1,126 +1,130 @@
 <?php
-App::uses('AppShell', 'Console/Command');
-App::uses('CakeEmail', 'Network/Email');
-App::uses('ClassRegistry', 'Utility');
+namespace EmailQueue\Shell;
 
-class SenderShell extends AppShell {
+use Cake\Console\Shell;
+use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
+use EmailQueue\Model\Table\EmailQueueTable;
+use Cake\Network\Exception\SocketException;
+use Cake\Mailer\Email;
 
-	public function getOptionParser() {
-		$parser = parent::getOptionParser();
-		$parser
-			->description('Sends queued emails in a batch')
-			->addOption('limit', array(
-				'short' => 'l',
-				'help' => 'How many emails should be sent in this batch?',
-				'default' => 50
-			))
-			->addOption('template', array(
-				'short' => 't',
-				'help' => 'Name of the template to be used to render email',
-				'default' => 'default'
-			))
-			->addOption('layout', array(
-				'short' => 'w',
-				'help' => 'Name of the layout to be used to wrap template',
-				'default' => 'default'
-			))
-			->addOption('stagger', array(
-				'short' => 's',
-				'help' => 'Seconds to maximum wait randomly before proceeding (useful for parallel executions)',
-				'default' => false
-			))
-			->addOption('config', array(
-				'short' => 'c',
-				'help' => 'Name of email settings to use as defined in email.php',
-				'default' => 'default'
-			))
-			->addSubCommand('clearLocks', array(
-				'help' => 'Clears all locked emails in the queue, useful for recovering from crashes'
-			));
-		return $parser;
-	}
+class SenderShell extends Shell {
 
-/**
- * Sends queued emails
- *
- * @access public
- */
-	public function main() {
-		if ($this->params['stagger']) {
-			sleep(rand(0, $this->params['stagger']));
-		}
+    public function getOptionParser() {
+        $parser = parent::getOptionParser();
+        $parser
+            ->description('Sends queued emails in a batch')
+            ->addOption('limit', array(
+                'short' => 'l',
+                'help' => 'How many emails should be sent in this batch?',
+                'default' => 50
+            ))
+            ->addOption('template', array(
+                'short' => 't',
+                'help' => 'Name of the template to be used to render email',
+                'default' => 'default'
+            ))
+            ->addOption('layout', array(
+                'short' => 'w',
+                'help' => 'Name of the layout to be used to wrap template',
+                'default' => 'default'
+            ))
+            ->addOption('stagger', array(
+                'short' => 's',
+                'help' => 'Seconds to maximum wait randomly before proceeding (useful for parallel executions)',
+                'default' => false
+            ))
+            ->addOption('config', array(
+                'short' => 'c',
+                'help' => 'Name of email settings to use as defined in email.php',
+                'default' => 'default'
+            ))
+            ->addSubCommand('clearLocks', array(
+                'help' => 'Clears all locked emails in the queue, useful for recovering from crashes'
+            ));
+        return $parser;
+    }
 
-		Configure::write('App.baseUrl', '/');
-		$emailQueue = ClassRegistry::init('EmailQueue.EmailQueue');
-		$emails = $emailQueue->getBatch($this->params['limit']);
-		$count = count($emails);
-		foreach ($emails as $e) {
-			$configName = $e['EmailQueue']['config'] === 'default' ? $this->params['config'] : $e['EmailQueue']['config'];
-			$template = $e['EmailQueue']['template'] === 'default' ? $this->params['template'] : $e['EmailQueue']['template'];
-			$layout = $e['EmailQueue']['layout'] === 'default' ? $this->params['layout'] : $e['EmailQueue']['layout'];
-			$headers = empty($e['EmailQueue']['headers']) ? array() : (array)$e['EmailQueue']['headers'];
-			$theme = empty($e['EmailQueue']['theme']) ? null : (string)$e['EmailQueue']['theme'];
-			if (empty($theme)) {
-				$theme = '';
-			}
+    /**
+     * Sends queued emails
+     *
+     * @access public
+     */
+    public function main() {
+        if ($this->params['stagger']) {
+            sleep(rand(0, $this->params['stagger']));
+        }
 
-			try {
-				$email = $this->_newEmail($configName);
+        Configure::write('App.baseUrl', '/');
+        $emailQueue = TableRegistry::get('EmailQueue', ['className' => EmailQueueTable::class]);
+        $emails = $emailQueue->getBatch($this->params['limit']);
 
-				if (!empty($e['EmailQueue']['from_email']) && !empty($e['EmailQueue']['from_name'])) {
-					$email->from($e['EmailQueue']['from_email'], $e['EmailQueue']['from_name']);
-				}
+        $count = count($emails);
+        foreach ($emails as $e) {
+            $configName = $e->layout === 'default' ? $this->params['config'] : $e->config;
+            $template = $e->layout === 'default' ? $this->params['template'] : $e->template;
+            $layout = $e->layout === 'default' ? $this->params['layout'] : $e->layout;
+            $headers = empty($e->headers) ? array() : (array)$e->headers;
+            $theme = empty($e->theme) ? '' : (string)$e->theme;
 
-				$config = $email->config();
+            try {
+                $email = $this->_newEmail($configName);
 
-				if (!isset($config['additionalParameters'])) {
-					$from = key($email->from());
-					$email->config(['additionalParameters' => "-f $from"]);
-				}
+                if (!empty($e->from_email) && !empty($e->from_name)) {
+                    $email->from($e->from_email, $e->from_name);
+                }
 
-				$sent = $email
-					->to($e['EmailQueue']['to'])
-					->subject($e['EmailQueue']['subject'])
-					->template($template, $layout)
-					->emailFormat($e['EmailQueue']['format'])
-					->addHeaders($headers)
-					->theme($theme)
-					->viewVars($e['EmailQueue']['template_vars'])
-					->messageId(false)
-					->returnPath($email->from())
-					->send();
-			} catch (SocketException $exception) {
-				$this->err($exception->getMessage());
-				$sent = false;
-			}
+                $config = $email->config();
 
-			if ($sent) {
-				$emailQueue->success($e['EmailQueue']['id']);
-				$this->out('<success>Email ' . $e['EmailQueue']['id'] . ' was sent</success>');
-			} else {
-				$emailQueue->fail($e['EmailQueue']['id']);
-				$this->out('<error>Email ' . $e['EmailQueue']['id'] . ' was not sent</error>');
-			}
+                if (!isset($config['additionalParameters'])) {
+                    $from = key($email->from());
+                    $email->config(['additionalParameters' => "-f $from"]);
+                }
 
-		}
-		$emailQueue->releaseLocks(Set::extract('{n}.EmailQueue.id', $emails));
-	}
+                $sent = $email
+                    ->to($e->email)
+                    ->subject($e->subject)
+                    ->template($template, $layout)
+                    ->emailFormat($e->format)
+                    ->addHeaders($headers)
+                    ->theme($theme)
+                    ->viewVars($e->template_vars)
+                    ->messageId(false)
+                    ->returnPath($email->from())
+                    ->send();
 
-/**
- * Clears all locked emails in the queue, useful for recovering from crashes
- *
- * @return void
- **/
-	public function clearLocks() {
-		 ClassRegistry::init('EmailQueue.EmailQueue')->clearLocks();
-	}
+            } catch (SocketException $exception) {
+                $this->err($exception->getMessage());
+                $sent = false;
+            }
 
-/**
- * Returns a new instance of CakeEmail
- *
- * @return CakeEmail
- **/
-	protected function _newEmail($config) {
-		return new CakeEmail($config);
-	}
+            if ($sent) {
+                $emailQueue->success($e->id);
+                $this->out('<success>Email ' . $e->id . ' was sent</success>');
+            } else {
+                $emailQueue->fail($e->id);
+                $this->out('<error>Email ' . $e->id . ' was not sent</error>');
+            }
+
+        }
+        $emailQueue->releaseLocks(collection($emails)->extract('id')->toList());
+    }
+
+    /**
+     * Clears all locked emails in the queue, useful for recovering from crashes
+     *
+     * @return void
+     **/
+    public function clearLocks() {
+        TableRegistry::get('EmailQueue', ['className' => EmailQueueTable::class])->clearLocks();
+    }
+
+    /**
+     * Returns a new instance of CakeEmail
+     *
+     * @return Email
+     **/
+    protected function _newEmail($config) {
+        return new Email($config);
+    }
 }
