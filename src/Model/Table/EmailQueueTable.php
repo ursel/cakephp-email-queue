@@ -3,6 +3,7 @@ namespace EmailQueue\Model\Table;
 
 use Cake\Database\Expression\QueryExpression;
 use Cake\Database\Schema\Table as Schema;
+use Cake\Database\Type;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
 use EmailQueue\Database\Type\JsonType;
@@ -11,7 +12,7 @@ use EmailQueue\Database\Type\JsonType;
  * EmailQueue Table
  *
  */
-class EmailQueue extends Table {
+class EmailQueueTable extends Table {
 
     /**
      * {@inheritDocs}
@@ -19,6 +20,7 @@ class EmailQueue extends Table {
      */
     public function initialize(array $config = []) {
         Type::map('email_queue.json', JsonType::class);
+        $this->addBehavior('Timestamp');
     }
 
     /**
@@ -58,7 +60,7 @@ class EmailQueue extends Table {
 
         $emails = [];
         foreach ($to as $t) {
-            $emails[] = ['to' => $t] + $email;
+            $emails[] = ['email' => $t] + $email;
         }
 
         $emails = $this->newEntities($emails);
@@ -84,19 +86,22 @@ class EmailQueue extends Table {
             $emails = $this->find()
                 ->where([
                     $this->aliasField('sent') => false,
-                    $this->aliasField('EmailQueue.send_tries'). ' <=' => 3,
-                    $this->aliasField('EmailQueue.send_at'). ' <=' => new FrozenTime('now', 'UTC'),
-                    $this->aliasField('EmailQueue.locked') => false
+                    $this->aliasField('send_tries'). ' <=' => 3,
+                    $this->aliasField('send_at'). ' <=' => new FrozenTime('now', 'UTC'),
+                    $this->aliasField('locked') => false
                 ])
                 ->order([$this->aliasField('created') => 'ASC']);
 
             $emails
                 ->extract('id')
                 ->through(function ($ids) {
-                    $this->updateAll(['locked' => true], ['id IN' => $ids]);
+                    if (!$ids->isEmpty()) {
+                        $this->updateAll(['locked' => true], ['id IN' => $ids->toList()]);
+                    }
+                    return $ids;
                 });
 
-            return $emails;
+            return $emails->toList();
         });
     }
 
@@ -107,7 +112,7 @@ class EmailQueue extends Table {
      * @return void
      */
     public function releaseLocks($ids) {
-        $this->updateAll(['locked' => false], ['id' => $ids]);
+        $this->updateAll(['locked' => false], ['id IN' => $ids]);
     }
 
     /**
@@ -116,7 +121,7 @@ class EmailQueue extends Table {
      * @return void
      */
     public function clearLocks() {
-        $this->updateAll(['locked' => false]);
+        $this->updateAll(['locked' => false], '1=1');
     }
 
     /**

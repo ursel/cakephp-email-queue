@@ -29,4 +29,9 @@ class JsonType extends StringType
     {
         return json_encode($value);
     }
+
+    public function requiresToPhpCast()
+    {
+        return true;
+    }
 }
