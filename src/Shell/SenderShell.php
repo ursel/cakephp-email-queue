@@ -48,7 +48,6 @@ class SenderShell extends Shell {
     /**
      * Sends queued emails
      *
-     * @access public
      */
     public function main() {
         if ($this->params['stagger']) {
@@ -74,11 +73,11 @@ class SenderShell extends Shell {
                     $email->from($e->from_email, $e->from_name);
                 }
 
-                $config = $email->config();
+                $transport = $email->transport();
 
-                if (!isset($config['additionalParameters'])) {
+                if ($transport && $transport->config('additionalParameters')) {
                     $from = key($email->from());
-                    $email->config(['additionalParameters' => "-f $from"]);
+                    $transport->config(['additionalParameters' => "-f $from"]);
                 }
 
                 $sent = $email

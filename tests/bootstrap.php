@@ -1,4 +1,6 @@
 <?php
+
+use Cake\Mailer\Email;
 $findRoot = function($root) {
     do {
         $lastRoot = $root;
@@ -15,3 +17,8 @@ unset($findRoot);
 chdir($root);
 
 require $root . '/vendor/cakephp/cakephp/tests/bootstrap.php';
+
+Email::configTransport(['default' => ['className' => 'Mail', 'additionalParameters' => true]]);
+Email::config([
+    'default' => ['transport' => 'default', 'from' => 'foo@bar.com']
+]);
