@@ -2,10 +2,11 @@
 
 namespace EmailQueue\Test\Model\Table;
 
-use Cake\TestSuite\TestCase;
-use Cake\ORM\TableRegistry;
-use EmailQueue\Model\Table\EmailQueueTable;
 use Cake\I18n\Time;
+use Cake\ORM\TableRegistry;
+use Cake\TestSuite\TestCase;
+use EmailQueue\EmailQueue;
+use EmailQueue\Model\Table\EmailQueueTable;
 
 class EmailQueueTest extends TestCase
 {
@@ -153,5 +154,22 @@ class EmailQueueTest extends TestCase
 
         $this->EmailQueue->fail('email-1');
         $this->assertEquals(3, $this->EmailQueue->get('email-1')->send_tries);
+    }
+
+    public function testProxy()
+    {
+        $date = new Time();
+        EmailQueue::enqueue(
+            'c@example.com',
+            ['a' => 'c'],
+            ['subject' => 'Hey', 'send_at' => $date, 'config' => 'other', 'template' => 'custom', 'layout' => 'email']
+        );
+
+        $email = $this->EmailQueue->find()->last();
+        $this->assertEquals(array('a' => 'c'), $email['template_vars']);
+        $this->assertEquals($date, $email['send_at']);
+        $this->assertEquals('other', $email['config']);
+        $this->assertEquals('custom', $email['template']);
+        $this->assertEquals('email', $email['layout']);
     }
 }

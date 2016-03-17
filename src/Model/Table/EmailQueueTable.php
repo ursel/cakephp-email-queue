@@ -42,7 +42,7 @@ class EmailQueueTable extends Table
      *
      * @return bool
      */
-    public function enqueue($to, array $data, $options = [])
+    public function enqueue($to, array $data, array $options = [])
     {
         $defaults = [
             'subject' => '',

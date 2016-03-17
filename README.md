@@ -9,42 +9,36 @@ email templates and watching the result.
 
 ## Requirements ##
 
-* CakePHP 2.x
+* CakePHP 3.x
 
 ## Installation ##
 
-The only installation method supported by this plugin is by using composer. Just add this to your composer.json configuration:
-
-	{
-	  "require" : {
-		"lorenzo/cakephp-email-queue": "1.0"
-	  }
-	}
-
+```sh
+composer require lorenzo/cakephp-email-queue
+```
 
 ### Enable plugin
 
-In 2.0 you need to enable the plugin your `app/Config/bootstrap.php` file:
-
-    CakePlugin::load('EmailQueue');
-
-If you are already using `CakePlugin::loadAll();`, then this is not necessary.
+```sh
+bin/cake plugin load EmailQueue
+```
 
 ### Load required database table
 
 In order to use this plugin, you need to create a database table.
 Required SQL is located at
 
-	# Config/Schema/email_queue.sql
+	# config/Schema/email_queue.sql
 
-Just load it into your database.
+Just load it into your database. You are free to change the file to use an integer primary
+key instead of UUIDs
 
 ## Usage
 
 Whenever you need to send an email, use the EmailQueue model to create
 and queue a new one by storing the correct data:
 
-	ClassRegistry::init('EmailQueue.EmailQueue')->enqueue($to, $data, $options);
+	EmailQueue::enqueue($to, $data, $options);
 
 `enqueue` method receives 3 arguments:
 
@@ -58,6 +52,7 @@ and queue a new one by storing the correct data:
  * `layout` : the name of the layout to be used to wrap email message
  * `format` : Type of template to use (html, text or both)
  * `headers`: A key-value list of headers to send in the email
+ * `theme`: The View Theme to find the email templates
  * `config` : the name of the email config to be used for sending
 
 ### Previewing emails
@@ -65,14 +60,14 @@ and queue a new one by storing the correct data:
 It is possible to preview emails that are still in the queue, this is very handy during development to check if the rendered
 email looks at it should; no need to queue the email again, just make the changes to the template and run the preview again:
 
-	# Console/cake EmailQueue.preview
+	# bin/cake EmailQueue.preview
 
 ### Sending emails
 
 Emails should be sent using bundled Sender command, use `-h` modifier to
 read available options
 
-	# Console/cake EmailQueue.sender -h
+	# bin/cake EmailQueue.sender -h
 
 You can configure this command to be run under a cron or any other tool
 you wish to use.
