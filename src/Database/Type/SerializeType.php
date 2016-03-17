@@ -5,7 +5,7 @@ namespace EmailQueue\Database\Type;
 use Cake\Database\Driver;
 use Cake\Database\Type\StringType;
 
-class JsonType extends StringType
+class SerializeType extends StringType
 {
     public function toPHP($value, Driver $driver)
     {
@@ -13,21 +13,12 @@ class JsonType extends StringType
             return;
         }
 
-        return json_decode($value, true);
-    }
-
-    public function marshal($value)
-    {
-        if (is_array($value) || $value === null) {
-            return $value;
-        }
-
-        return json_decode($value, true);
+        return unserialize($value);
     }
 
     public function toDatabase($value, Driver $driver)
     {
-        return json_encode($value);
+        return serialize($value);
     }
 
     public function requiresToPhpCast()

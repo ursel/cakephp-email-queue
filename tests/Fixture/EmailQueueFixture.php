@@ -5,16 +5,14 @@ namespace EmailQueue\Test\Fixture;
 use Cake\TestSuite\Fixture\TestFixture;
 
 /**
- * EmailQueueFixture
- *
+ * EmailQueueFixture.
  */
 class EmailQueueFixture extends TestFixture
 {
-
     public $table = 'email_queue';
 
     /**
-     * Fields
+     * Fields.
      *
      * @var array
      */
@@ -34,11 +32,11 @@ class EmailQueueFixture extends TestFixture
         'send_at' => array('type' => 'datetime', 'null' => true, 'default' => null),
         'created' => array('type' => 'datetime', 'null' => false, 'default' => null),
         'modified' => array('type' => 'datetime', 'null' => false, 'default' => null),
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     );
 
     /**
-     * Records
+     * Records.
      *
      * @var array
      */
@@ -58,7 +56,7 @@ class EmailQueueFixture extends TestFixture
             'send_tries' => 1,
             'send_at' => '2011-06-20 13:50:48',
             'created' => '2011-06-20 13:50:48',
-            'modified' => '2011-06-20 13:50:48'
+            'modified' => '2011-06-20 13:50:48',
         ),
         array(
             'id' => 'email-2',
@@ -75,7 +73,7 @@ class EmailQueueFixture extends TestFixture
             'send_tries' => 2,
             'send_at' => '2011-06-20 13:50:48',
             'created' => '2011-06-20 13:50:48',
-            'modified' => '2011-06-20 13:50:48'
+            'modified' => '2011-06-20 13:50:48',
         ),
         array(
             'id' => 'email-3',
@@ -92,7 +90,7 @@ class EmailQueueFixture extends TestFixture
             'send_tries' => 3,
             'send_at' => '2011-06-20 13:50:48',
             'created' => '2011-06-20 13:50:48',
-            'modified' => '2011-06-20 13:50:48'
+            'modified' => '2011-06-20 13:50:48',
         ),
         array(
             'id' => 'email-4',
@@ -109,7 +107,7 @@ class EmailQueueFixture extends TestFixture
             'send_tries' => 0,
             'send_at' => '2011-06-20 13:50:48',
             'created' => '2011-06-20 13:50:48',
-            'modified' => '2011-06-20 13:50:48'
+            'modified' => '2011-06-20 13:50:48',
         ),
         array(
             'id' => 'email-5',
@@ -126,7 +124,7 @@ class EmailQueueFixture extends TestFixture
             'send_tries' => 0,
             'send_at' => '2011-06-20 13:50:48',
             'created' => '2011-06-20 13:50:48',
-            'modified' => '2011-06-20 13:50:48'
+            'modified' => '2011-06-20 13:50:48',
         ),
         array(
             'id' => 'email-6',
@@ -143,8 +141,7 @@ class EmailQueueFixture extends TestFixture
             'send_tries' => 0,
             'send_at' => '2115-06-20 13:50:48',
             'created' => '2011-06-20 13:50:48',
-            'modified' => '2011-06-20 13:50:48'
+            'modified' => '2011-06-20 13:50:48',
         ),
     );
-
 }

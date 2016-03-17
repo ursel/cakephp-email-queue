@@ -10,8 +10,8 @@ use Cake\Mailer\Email;
 
 class PreviewShell extends Shell
 {
-
-    public function main() {
+    public function main()
+    {
         Configure::write('App.baseUrl', '/');
 
         $conditions = [];
@@ -24,6 +24,7 @@ class PreviewShell extends Shell
 
         if (!$emails) {
             $this->out('No emails found');
+
             return;
         }
 
@@ -33,17 +34,18 @@ class PreviewShell extends Shell
                 $this->in('Hit a key to continue');
                 $this->clear();
             }
-            $this->out("Email :" . $email['EmailQueue']['id']);
+            $this->out('Email :'.$email['EmailQueue']['id']);
             $this->preview($email);
         }
     }
 
-    public function preview($e) {
+    public function preview($e)
+    {
         $configName = $e['config'];
         $template = $e['template'];
         $layout = $e['layout'];
-        $headers = empty($e['headers']) ? [] : (array)$e['headers'];
-        $theme = empty($e['theme']) ? '' : (string)$e['theme'];
+        $headers = empty($e['headers']) ? [] : (array) $e['headers'];
+        $theme = empty($e['theme']) ? '' : (string) $e['theme'];
 
         $email = new Email($configName);
         $email->transport('Debug')
@@ -69,7 +71,7 @@ class PreviewShell extends Shell
         $this->hr();
         $this->out('Data:');
         $this->hr();
-        debug ($e['template_vars']);
+        debug($e['template_vars']);
         $this->hr();
         $this->out();
     }

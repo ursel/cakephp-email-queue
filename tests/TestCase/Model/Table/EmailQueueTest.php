@@ -1,4 +1,5 @@
 <?php
+
 namespace EmailQueue\Test\Model\Table;
 
 use Cake\TestSuite\TestCase;
@@ -6,37 +7,35 @@ use Cake\ORM\TableRegistry;
 use EmailQueue\Model\Table\EmailQueueTable;
 use Cake\I18n\Time;
 
-class EmailQueueTableTest extends TestCase
+class EmailQueueTest extends TestCase
 {
     /**
-     * Fixtures
+     * Fixtures.
      *
      * @var array
      */
     public $fixtures = [
-        'plugin.email_queue.email_queue'
+        'plugin.email_queue.email_queue',
     ];
 
     /**
-     * setUp method
-     *
-     * @return void
+     * setUp method.
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->EmailQueue = TableRegistry::get('EmailQueue', ['className' => EmailQueueTable::class]);
     }
 
     /**
-     * testEnqueue method
-     *
-     * @return void
+     * testEnqueue method.
      */
-    public function testEnqueue() {
+    public function testEnqueue()
+    {
         $count = $this->EmailQueue->find()->count();
         $this->EmailQueue->enqueue('someone@domain.com', array('a' => 'variable', 'some' => 'thing'), array(
             'subject' => 'Hey!',
-            'headers' => ['X-FOO' => 'bar', 'X-BAZ' => 'thing']
+            'headers' => ['X-FOO' => 'bar', 'X-BAZ' => 'thing'],
         ));
 
         $this->assertEquals(++$count, $this->EmailQueue->find()->count());
@@ -53,7 +52,7 @@ class EmailQueueTableTest extends TestCase
             'locked' => false,
             'send_tries' => '0',
             'config' => 'default',
-            'headers' => array('X-FOO' => 'bar', 'X-BAZ' => 'thing')
+            'headers' => array('X-FOO' => 'bar', 'X-BAZ' => 'thing'),
         );
         $sendAt = new Time($result['send_at']);
         unset($result['id'], $result['created'], $result['modified'], $result['send_at']);
@@ -70,7 +69,6 @@ class EmailQueueTableTest extends TestCase
             ->first();
         $this->assertEquals(array('a' => 'b'), $email['template_vars']);
         $this->assertEquals($date, $email['send_at']);
-
 
         $email = $this->EmailQueue
             ->find()
@@ -94,11 +92,10 @@ class EmailQueueTableTest extends TestCase
     }
 
     /**
-     * testGetBatch method
-     *
-     * @return void
+     * testGetBatch method.
      */
-    public function testGetBatch() {
+    public function testGetBatch()
+    {
         $batch = $this->EmailQueue->getBatch();
         $this->assertEquals(array('email-1', 'email-2', 'email-3'), collection($batch)->extract('id')->toList());
 
@@ -113,11 +110,10 @@ class EmailQueueTableTest extends TestCase
     }
 
     /**
-     * testReleaseLocks method
-     *
-     * @return void
+     * testReleaseLocks method.
      */
-    public function testReleaseLocks() {
+    public function testReleaseLocks()
+    {
         $batch = $this->EmailQueue->getBatch();
         $this->assertNotEmpty($batch);
         $this->assertEmpty($this->EmailQueue->getBatch());
@@ -126,11 +122,10 @@ class EmailQueueTableTest extends TestCase
     }
 
     /**
-     * testClearLocks method
-     *
-     * @return void
+     * testClearLocks method.
      */
-    public function testClearLocks() {
+    public function testClearLocks()
+    {
         $batch = $this->EmailQueue->getBatch();
         $this->assertNotEmpty($batch);
         $this->assertEmpty($this->EmailQueue->getBatch());
@@ -140,26 +135,23 @@ class EmailQueueTableTest extends TestCase
     }
 
     /**
-     * testSuccess method
-     *
-     * @return void
+     * testSuccess method.
      */
-    public function testSuccess() {
+    public function testSuccess()
+    {
         $this->EmailQueue->success('email-1');
         $this->assertEquals(1, $this->EmailQueue->get('email-1')->sent);
     }
 
     /**
-     * testFail method
-     *
-     * @return void
+     * testFail method.
      */
-    public function testFail() {
+    public function testFail()
+    {
         $this->EmailQueue->fail('email-1');
         $this->assertEquals(2, $this->EmailQueue->get('email-1')->send_tries);
 
         $this->EmailQueue->fail('email-1');
         $this->assertEquals(3, $this->EmailQueue->get('email-1')->send_tries);
     }
-
 }
