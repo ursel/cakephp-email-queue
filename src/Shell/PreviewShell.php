@@ -1,78 +1,76 @@
 <?php
-App::uses('AppShell', 'Console/Command');
-App::uses('CakeEmail', 'Network/Email');
-App::uses('ClassRegistry', 'Utility');
 
-class PreviewShell extends AppShell {
+namespace EmailQueue\Shell;
 
-	public function main() {
-		Configure::write('App.baseUrl', '/');
+use Cake\Console\Shell;
+use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
+use EmailQueue\Model\Table\EmailQueueTable;
+use Cake\Mailer\Email;
 
-		$conditions = array();
-		if ($this->args) {
-			$conditions['id'] = $this->args;
-		}
+class PreviewShell extends Shell
+{
 
-		$emailQueue = ClassRegistry::init('EmailQueue.EmailQueue');
-		$emails = $emailQueue->find('all', array(
-			'conditions' => $conditions
-		));
+    public function main() {
+        Configure::write('App.baseUrl', '/');
 
-		if (!$emails) {
-			$this->out('No emails found');
-			return;
-		}
+        $conditions = [];
+        if ($this->args) {
+            $conditions['id IN'] = $this->args;
+        }
 
-		$this->clear();
-		foreach ($emails as $i => $email) {
-			if ($i) {
-				$this->out('Hit a key to continue');
-				`read foo`;
-				$this->clear();
-			}
-			$this->out("Email :" . $email['EmailQueue']['id']);
-			$this->preview($email);
-		}
-	}
+        $emailQueue = TableRegistry::get('EmailQueue', ['className' => EmailQueueTable::class]);
+        $emails = $emailQueue->find()->where($conditions)->toList();
 
-	public function preview($e) {
-		$configName = $e['EmailQueue']['config'];
-		$template = $e['EmailQueue']['template'];
-		$layout = $e['EmailQueue']['layout'];
-		$headers = empty($e['EmailQueue']['headers']) ? array() : (array)$e['EmailQueue']['headers'];
-		$theme = empty($e['EmailQueue']['theme']) ? null : (string)$e['EmailQueue']['theme'];
-		if (empty($theme)) {
-			$theme = '';
-		}
+        if (!$emails) {
+            $this->out('No emails found');
+            return;
+        }
 
+        $this->clear();
+        foreach ($emails as $i => $email) {
+            if ($i) {
+                $this->in('Hit a key to continue');
+                $this->clear();
+            }
+            $this->out("Email :" . $email['EmailQueue']['id']);
+            $this->preview($email);
+        }
+    }
 
-		$email = new CakeEmail($configName);
-		$email->transport('Debug')
-			->to($e['EmailQueue']['to'])
-			->subject($e['EmailQueue']['subject'])
-			->template($template, $layout)
-			->emailFormat($e['EmailQueue']['format'])
-			->addHeaders($headers)
-			->theme($theme)
-			->messageId(false)
-			->returnPath($email->from())
-			->viewVars($e['EmailQueue']['template_vars']);
+    public function preview($e) {
+        $configName = $e['config'];
+        $template = $e['template'];
+        $layout = $e['layout'];
+        $headers = empty($e['headers']) ? [] : (array)$e['headers'];
+        $theme = empty($e['theme']) ? '' : (string)$e['theme'];
 
-		$return = $email->send();
+        $email = new Email($configName);
+        $email->transport('Debug')
+            ->to($e['to'])
+            ->subject($e['subject'])
+            ->template($template, $layout)
+            ->emailFormat($e['format'])
+            ->addHeaders($headers)
+            ->theme($theme)
+            ->messageId(false)
+            ->returnPath($email->from())
+            ->viewVars($e['template_vars']);
 
-		$this->out('Content:');
-		$this->hr();
-		$this->out($return['message']);
-		$this->hr();
-		$this->out('Headers:');
-		$this->hr();
-		$this->out($return['headers']);
-		$this->hr();
-		$this->out('Data:');
-		$this->hr();
-		debug ($e['EmailQueue']['template_vars']);
-		$this->hr();
-		$this->out();
-	}
+        $return = $email->send();
 
+        $this->out('Content:');
+        $this->hr();
+        $this->out($return['message']);
+        $this->hr();
+        $this->out('Headers:');
+        $this->hr();
+        $this->out($return['headers']);
+        $this->hr();
+        $this->out('Data:');
+        $this->hr();
+        debug ($e['template_vars']);
+        $this->hr();
+        $this->out();
+    }
 }
