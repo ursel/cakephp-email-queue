@@ -38,7 +38,8 @@ key instead of UUIDs
 Whenever you need to send an email, use the EmailQueue model to create
 and queue a new one by storing the correct data:
 
-	EmailQueue::enqueue($to, $data, $options);
+    use EmailQueue\EmailQueue;
+    EmailQueue::enqueue($to, $data, $options);
 
 `enqueue` method receives 3 arguments:
 
