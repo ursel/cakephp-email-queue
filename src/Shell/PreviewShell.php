@@ -49,7 +49,7 @@ class PreviewShell extends Shell
 
         $email = new Email($configName);
         $email->transport('Debug')
-            ->to($e['to'])
+            ->to($e['email'])
             ->subject($e['subject'])
             ->template($template, $layout)
             ->emailFormat($e['format'])
