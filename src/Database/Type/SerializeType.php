@@ -20,6 +20,11 @@ class SerializeType extends StringType
     {
         return serialize($value);
     }
+    
+    public function marshal($value)
+    {
+        return $value;
+    }
 
     public function requiresToPhpCast()
     {
