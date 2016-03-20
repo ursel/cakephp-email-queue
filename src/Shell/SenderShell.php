@@ -107,7 +107,8 @@ class SenderShell extends Shell
                 $this->out('<error>Email '.$e->id.' was not sent</error>');
             }
         }
-        $emailQueue->releaseLocks(collection($emails)->extract('id')->toList());
+        if ($count > 0)
+            $emailQueue->releaseLocks(collection($emails)->extract('id')->toList());
     }
 
     /**
