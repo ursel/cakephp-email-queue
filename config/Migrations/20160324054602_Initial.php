@@ -90,7 +90,7 @@ class Initial extends AbstractMigration
             ->addColumn('modified', 'datetime', [
                 'default' => null,
                 'limit'   => null,
-                'null'    => false,
+                'null'    => true,
             ])
             ->create();
     }
