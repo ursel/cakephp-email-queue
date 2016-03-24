@@ -46,7 +46,7 @@ class EmailQueueTable extends Table
     {
         $defaults = [
             'subject' => '',
-            'send_at' => new FrozenTime('now', 'UTC'),
+            'send_at' => new FrozenTime('now'),
             'template' => 'default',
             'layout' => 'default',
             'theme' => '',
@@ -93,7 +93,7 @@ class EmailQueueTable extends Table
                 ->where([
                     $this->aliasField('sent') => false,
                     $this->aliasField('send_tries').' <=' => 3,
-                    $this->aliasField('send_at').' <=' => new FrozenTime('now', 'UTC'),
+                    $this->aliasField('send_at').' <=' => new FrozenTime('now'),
                     $this->aliasField('locked') => false,
                 ])
                 ->order([$this->aliasField('created') => 'ASC']);
