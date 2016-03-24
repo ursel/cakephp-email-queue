@@ -30,12 +30,12 @@ Required SQL is located at
 
 	# config/Schema/email_queue.sql
 
-Or run migrations command
+Just load it into your database. You are free to change the file to use an integer primary
+key instead of UUIDs.
+
+Or run migrations command:
 
     bin/cake migrations migrate --plugin EmailQueue
-    
-Just load it into your database. You are free to change the file to use an integer primary
-key instead of UUIDs
 
 ## Usage
 
