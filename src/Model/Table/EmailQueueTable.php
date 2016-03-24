@@ -23,7 +23,14 @@ class EmailQueueTable extends Table
     {
         Type::map('email_queue.json', JsonType::class);
         Type::map('email_queue.serialize', SerializeType::class);
-        $this->addBehavior('Timestamp');
+        $this->addBehavior('Timestamp', [
+            'events' => [
+                'Model.beforeSave' => [
+                    'created' => 'new',
+                    'modified' => 'existing'
+                ]
+            ]
+        ]);
     }
 
     /**
