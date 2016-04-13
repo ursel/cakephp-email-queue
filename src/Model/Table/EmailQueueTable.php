@@ -103,6 +103,7 @@ class EmailQueueTable extends Table
                     $this->aliasField('send_at').' <=' => new FrozenTime('now'),
                     $this->aliasField('locked') => false,
                 ])
+                ->limit($size)
                 ->order([$this->aliasField('created') => 'ASC']);
 
             $emails
