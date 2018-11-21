@@ -4,7 +4,7 @@ namespace EmailQueue\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
-use Cake\Database\Schema\Table as Schema;
+use Cake\Database\Schema\TableSchema as Schema;
 use Cake\Database\Type;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
