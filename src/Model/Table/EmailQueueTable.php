@@ -76,7 +76,7 @@ class EmailQueueTable extends Table
 
         $emails = $this->newEntities($emails);
 
-        return $this->connection()->transactional(function () use ($emails) {
+        return $this->getConnection()->transactional(function () use ($emails) {
             $failure = collection($emails)
                 ->map(function ($email) {
                     return $this->save($email);
@@ -96,7 +96,7 @@ class EmailQueueTable extends Table
      */
     public function getBatch($size = 10)
     {
-        return $this->connection()->transactional(function () use ($size) {
+        return $this->getConnection()->transactional(function () use ($size) {
             $emails = $this->find()
                 ->where([
                     $this->aliasField('sent') => false,
@@ -173,9 +173,9 @@ class EmailQueueTable extends Table
     protected function _initializeSchema(Schema $schema)
     {
         $type = Configure::read('EmailQueue.serialization_type') ?: 'email_queue.serialize';
-        $schema->columnType('template_vars', $type);
-        $schema->columnType('headers', $type);
-        $schema->columnType('attachments', $type);
+        $schema->setColumnType('template_vars', $type);
+        $schema->setColumnType('headers', $type);
+        $schema->setColumnType('attachments', $type);
         
         return $schema;
     }

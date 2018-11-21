@@ -50,19 +50,19 @@ class PreviewShell extends Shell
         $email = new Email($configName);
 	
         if (!empty($e['attachments'])) {
-            $email->attachments($e['attachments']);
+            $email->setAttachments($e['attachments']);
         }
 	
-        $email->transport('Debug')
-            ->to($e['email'])
-            ->subject($e['subject'])
-            ->template($template, $layout)
-            ->emailFormat($e['format'])
+        $email->setTransport('Debug')
+            ->setTo($e['email'])
+            ->setSubject($e['subject'])
+            ->setTemplate($template, $layout)
+            ->setEmailFormat($e['format'])
             ->addHeaders($headers)
-            ->theme($theme)
-            ->messageId(false)
-            ->returnPath($email->from())
-            ->viewVars($e['template_vars']);
+            ->setTheme($theme)
+            ->setMessageId(false)
+            ->setReturnPath($email->getFrom())
+            ->setViewVars($e['template_vars']);
 
         $return = $email->send();
 

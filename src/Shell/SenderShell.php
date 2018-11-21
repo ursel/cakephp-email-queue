@@ -15,7 +15,7 @@ class SenderShell extends Shell
     {
         $parser = parent::getOptionParser();
         $parser
-            ->description('Sends queued emails in a batch')
+            ->setDescription('Sends queued emails in a batch')
             ->addOption('limit', array(
                 'short' => 'l',
                 'help' => 'How many emails should be sent in this batch?',
@@ -76,27 +76,27 @@ class SenderShell extends Shell
                     $email->from($e->from_email, $e->from_name);
                 }
 
-                $transport = $email->transport();
+                $transport = $email->getTransport();
 
-                if ($transport && $transport->config('additionalParameters')) {
-                    $from = key($email->from());
-                    $transport->config(['additionalParameters' => "-f $from"]);
+                if ($transport && $transport->getConfig('additionalParameters')) {
+                    $from = key($email->getFrom());
+                    $transport->getConfig(['additionalParameters' => "-f $from"]);
                 }
 		
                 if (!empty($e->attachments)) {
-                    $email->attachments($e->attachments);
+                    $email->setAsetttachments($e->attachments);
                 }
 		
                 $sent = $email
-                    ->to($e->email)
-                    ->subject($e->subject)
-                    ->template($template, $layout)
-                    ->emailFormat($e->format)
+                    ->setTo($e->email)
+                    ->setSubject($e->subject)
+                    ->setTemplate($template, $layout)
+                    ->setEmailFormat($e->format)
                     ->addHeaders($headers)
-                    ->theme($theme)
-                    ->viewVars($e->template_vars)
-                    ->messageId(false)
-                    ->returnPath($email->from())
+                    ->setTheme($theme)
+                    ->setViewVars($e->template_vars)
+                    ->setMessageId(false)
+                    ->setReturnPath($email->getFrom())
                     ->send();
             } catch (SocketException $exception) {
                 $this->err($exception->getMessage());
