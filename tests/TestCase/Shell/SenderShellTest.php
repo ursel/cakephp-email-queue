@@ -2,9 +2,9 @@
 
 namespace EmailQueue\Test\Shell;
 
+use Cake\ORM\Locator\TableLocator;
 use EmailQueue\Shell\SenderShell;
 use Cake\Mailer\Email;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Cake\Console\ConsoleOutput;
 use Cake\Console\ConsoleIo;
@@ -33,11 +33,16 @@ class SenderShellTest extends TestCase
         parent::setUp();
         $this->out = new ConsoleOutput();
         $this->io = new ConsoleIo($this->out);
-        $this->Sender = $this->getMock(
-            SenderShell::class,
-            ['in', 'createFile', '_stop', '_newEmail'],
-            [$this->io]
-        );
+//        $this->Sender = $this->getMock(
+//            SenderShell::class,
+//            ['in', 'createFile', '_stop', '_newEmail'],
+//            [$this->io]
+//        );
+
+        $this->Sender = $this->getMockBuilder(SenderShell::class)
+            ->setMethods(['in', 'createFile', '_stop', '_newEmail'])
+            ->setConstructorArgs([$this->io])
+            ->getMock();
 
         $this->Sender->params = [
             'limit' => 10,
@@ -46,7 +51,7 @@ class SenderShellTest extends TestCase
             'config' => 'default',
             'stagger' => false,
         ];
-        TableRegistry::get('EmailQueue', ['className' => EmailQueueTable::class]);
+        TableLocator::get('EmailQueue', ['className' => EmailQueueTable::class]);
     }
 
     public function testMainAllFail()
@@ -65,7 +70,7 @@ class SenderShellTest extends TestCase
             ->will($this->returnSelf());
 
         $email->expects($this->exactly(3))->method('viewVars')
-            ->with(array('a' => 1, 'b' => 2))
+            ->with(['a' => 1, 'b' => 2])
             ->will($this->returnSelf());
         $this->Sender->main();
 
@@ -106,7 +111,7 @@ class SenderShellTest extends TestCase
             ->will($this->returnSelf());
 
         $email->expects($this->exactly(3))->method('viewVars')
-            ->with(array('a' => 1, 'b' => 2))
+            ->with(['a' => 1, 'b' => 2])
             ->will($this->returnSelf());
         $this->Sender->main();
 
@@ -143,7 +148,7 @@ class SenderShellTest extends TestCase
             ->will($this->returnSelf());
 
         $email->expects($this->exactly(3))->method('viewVars')
-            ->with(array('a' => 1, 'b' => 2))
+            ->with(['a' => 1, 'b' => 2])
             ->will($this->returnSelf());
         $this->Sender->main();
 
@@ -165,7 +170,7 @@ class SenderShellTest extends TestCase
 
     public function testClearLocks()
     {
-        $emails = TableRegistry::get('EmailQueue');
+        $emails = TableLocator::get()('EmailQueue');
         $emails->getBatch();
         $this->Sender->clearLocks();
         $this->assertEmpty($emails->findByLocked(true)->toArray());

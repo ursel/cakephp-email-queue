@@ -54,6 +54,8 @@ class EmailQueueTable extends Table
         $defaults = [
             'subject' => '',
             'send_at' => new FrozenTime('now'),
+            'created' => new FrozenTime('now'),
+            'modified' => new FrozenTime('now'),
             'template' => 'default',
             'layout' => 'default',
             'theme' => '',

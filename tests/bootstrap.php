@@ -21,7 +21,7 @@ chdir($root);
 require $root.'/vendor/cakephp/cakephp/tests/bootstrap.php';
 
 Configure::write('EmailQueue.serialization_type', 'email_queue.json');
-Email::configTransport(['default' => ['className' => 'Mail', 'additionalParameters' => true]]);
-Email::config([
+Email::setConfigTransport(['default' => ['className' => 'Mail', 'additionalParameters' => true]]);
+Email::setConfig([
     'default' => ['transport' => 'default', 'from' => 'foo@bar.com'],
 ]);
